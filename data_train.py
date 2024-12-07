@@ -53,8 +53,6 @@ print("Dropped columns due to missing values:")
 for column in columns_with_na:
     print(column)
 
-
-
 # # Select only numeric types
 # df_train_numeric = df_train.select_dtypes(include='number')
 #
