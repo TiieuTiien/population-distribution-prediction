@@ -15,3 +15,11 @@ The table outlines key features crucial for global population distribution analy
 
 *Important Features to Retain for Global Population Distribution Analysis*
 
+| Data types | Columns                                                                                |
+|------------|----------------------------------------------------------------------------------------|
+| int64      | SortOrder, LocID, LocTypeID, ParentID, VarID, Time, MidPeriod, AgeGrpStart, AgeGrpSpan |
+| float64    | Notes, SDMX_code, PopMale, PopFemale, PopTotal                                         |
+| object     | ISO3_code, ISO2_code, LocTypeName, Location, Variant, AgeGrp                           |
+
+*Categorization of WPP2022_PopulationBySingleAgeSex_Medium_1950-2021.csv columns by Data Type*
+
