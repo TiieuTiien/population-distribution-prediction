@@ -16,4 +16,5 @@ data_samples/*
 !data_samples/.gitkeep
 
 data_samples/sample/*
-!data_samples/sample/.gitkeep
+!data_samples/sample/.gitkeep__pycache__/
+__pycache__/
