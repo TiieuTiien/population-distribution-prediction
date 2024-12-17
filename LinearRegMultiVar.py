@@ -1,67 +1,86 @@
-import numpy as np
-import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 
-# Read the cleaned data
+# Step 1: Load the dataset
 df = pd.read_csv("data/cleaned/group_4_Afghanistan_cleaned.csv", low_memory=False)
 
-# Select only the features 'Time' and 'AgeGrp' and the target variable 'PopTotal'
-selected_columns = ['Time', 'AgeGrp']  # Only use Time and AgeGrp as features
-target_column = 'PopTotal'  # Target variable
+# Step 2: Select features ('Time', 'AgeGrp') and the target ('PopTotal')
+selected_columns = ['Time', 'AgeGrp']  # Features
+target_column = 'PopTotal'  # Target
 
-# Prepare input (X) and output (Y)
-X = df[selected_columns]
-Y = df[[target_column]]  # Ensure Y is a DataFrame for scaling
+X = df[selected_columns]  # Feature set
+Y = df[target_column]  # Target variable
 
-# Initialize the scalers and apply to the data
-scaler_X = StandardScaler()
-scaler_Y = StandardScaler()
+# Step 3: Scale the features using StandardScaler (Z-Score normalization)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
-# Scale the numeric features 'Time' and 'AgeGrp'
-X_scaled = scaler_X.fit_transform(X)
-Y_scaled = scaler_Y.fit_transform(Y)
+# Optional: Save the attributes (mean, std) for reconversion if needed
+scaler_attributes = {
+    column: {
+        "mean": scaler.mean_[i],
+        "std": scaler.scale_[i],
+    }
+    for i, column in enumerate(selected_columns)
+}
 
-# Split data into train and test sets (70% train, 30% test)
-train_X, test_X, train_Y, test_Y = train_test_split(X_scaled, Y_scaled, test_size=0.3, random_state=42)
+# Step 4: Split the scaled data into training and testing sets
+train_X, test_X, train_Y, test_Y = train_test_split(X_scaled, Y, test_size=0.1, random_state=42)
 
-# Initialize and train the linear regression model
+# Step 5: Perform multivariate regression using LinearRegression
 model = LinearRegression()
-model.fit(train_X, train_Y)
+model.fit(train_X, train_Y)  # Train the model on the training data
 
-# Make predictions on the test set
+# Step 6: Predict on the test set
 y_pred = model.predict(test_X)
 
-# Inverse transform predictions to original scale
-y_pred_original = scaler_Y.inverse_transform(y_pred)
+# Step 7: Evaluate the model's performance
+mae = mean_absolute_error(test_Y, y_pred)  # Mean Absolute Error
+mse = mean_squared_error(test_Y, y_pred)  # Mean Squared Error
+r2 = r2_score(test_Y, y_pred)  # R-squared value
 
-# Calculate and print regression evaluation metrics (on the original scale)
-mae = mean_absolute_error(scaler_Y.inverse_transform(test_Y), y_pred_original)
-mse = mean_squared_error(scaler_Y.inverse_transform(test_Y), y_pred_original)
-r2 = r2_score(scaler_Y.inverse_transform(test_Y), y_pred_original)
+# Output the results
+print("Model Evaluation Metrics:")
+print("Mean Absolute Error (MAE):", mae)
+print("Mean Squared Error (MSE):", mse)
+print("R-Squared Value (R2):", r2)
 
-print("Mean Absolute Error on test set (original scale):", mae)
-print("Mean Squared Error on test set (original scale):", mse)
-print("R-squared on test set (original scale):", r2)
+import os
 
-# Predict for a specific time and age group
-time_to_predict = 1986  # Example year
-age_group_to_predict = 12  # Example age group
+# Example Prediction
+time_to_predict = 1986
+age_group_to_predict = 90
 
-# Prepare the new data for prediction
-new_data = [[time_to_predict, age_group_to_predict]]  # Only Time and AgeGrp
+# Standardize the prediction input using the saved scaler attributes
+normalized_time = (time_to_predict - scaler_attributes['Time']['mean']) / scaler_attributes['Time']['std']
+normalized_age_grp = (age_group_to_predict - scaler_attributes['AgeGrp']['mean']) / scaler_attributes['AgeGrp']['std']
 
-# Scale the new data using the same scaler
-new_data_scaled = scaler_X.transform(new_data)
+new_data_scaled = [[normalized_time, normalized_age_grp]]
+predicted_population = model.predict(new_data_scaled)
 
-# Predict using the model
-predicted_population_scaled = model.predict(new_data_scaled)
+# Create a message for the prediction result
+prediction_message = (
+    f"Predicted population for the year {time_to_predict} and age group {age_group_to_predict} "
+    f"is: {predicted_population[0]:.2f} thousand people\n"
+)
 
-# Inverse transform the prediction to the original scale
-predicted_population_original = scaler_Y.inverse_transform(predicted_population_scaled)
+# Print the message to the console
+print(prediction_message)
 
-# Output the prediction
-print(
-    f"Dự đoán dân số cho năm {time_to_predict} và độ tuổi {age_group_to_predict} là: {predicted_population_original[0][0]:.2f} nghìn người")
+# Save the result to a file
+# Define the directory and file path
+directory = "data/result"
+file_path = os.path.join(directory, "prediction_result.txt")
+
+# Check if the directory exists; if not, create it
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+# Write the prediction message to the file
+with open(file_path, "w") as file:
+    file.write(prediction_message)
+
+print(f"Prediction result saved successfully to {file_path}")
