@@ -23,3 +23,10 @@ The table outlines key features crucial for global population distribution analy
 
 *Categorization of WPP2022_PopulationBySingleAgeSex_Medium_1950-2021.csv columns by Data Type*
 
+| Time   | AgeGrp | Location | PopTotal | Location_encoded |
+|--------|--------|----------|----------|------------------|
+| 1980   | 15     | CityA    | 2500     | 2600.0           |
+| 1990   | 20     | CityB    | 3000     | 3100.0           |
+| 2000   | 25     | CityA    | 2700     | 2600.0           |
+| 2010   | 30     | CityC    | 4000     | 4000.0           |
+| 2020   | 35     | CityB    | 3200     | 3100.0           |
