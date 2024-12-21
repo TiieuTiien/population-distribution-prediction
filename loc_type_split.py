@@ -14,18 +14,16 @@ output_dir = os.path.join(data_dir, 'loc_type_group')
 # Create the directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
 
+# Select only the required columns
+selected_columns = ['LocID', 'Location', 'LocTypeName', 'Time', 'PopMale', 'PopFemale', 'PopTotal', 'AgeGrp']
+data = df.loc[:, selected_columns].copy()
+
+# Clean the AgeGrp column
+data.loc[:, 'AgeGrp'] = data['AgeGrp'].replace('100+', '100')
+data.loc[:, 'AgeGrp'] = data['AgeGrp'].astype(int)
+
 # Group the data by 'LocTypeName' and save each group as a separate CSV file
-grouped = df.groupby(['LocTypeName'])
-
-# Use a counter to inspect only a few groups
-counter = 0
-for loc_type, group_data in grouped:
-    print(f"loc_type: {loc_type} (Type: {type(loc_type)})")  # Print the loc_type and its type for debugging
-
-    # Stop after printing 5 groups
-    counter += 1
-    if counter >= 5:
-        break
+grouped = data.groupby(['LocTypeName'])
 
 for loc_type, group_data in grouped:
     # If loc_type is a tuple, extract the first element
