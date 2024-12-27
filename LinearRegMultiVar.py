@@ -63,6 +63,7 @@ train_X, test_X, train_Y, test_Y = train_test_split(X_scaled, Y, test_size=0.1, 
 # Initialize and train Linear Regression
 model = LinearRegression()
 model.fit(train_X, train_Y)  # Train the model on the training data
+model.save("")
 
 # Step 7: Predict on the test set and evaluate the model's performance
 y_pred = model.predict(test_X)
